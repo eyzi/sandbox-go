@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+
+	"github.com/eyzi/sandbox-go/server"
 )
 
 type OptionalObject struct {
@@ -26,5 +28,5 @@ func main() {
 
 	fmt.Printf("%+v\n", obj)
 
-	createServer()
+	server.CreateServer()
 }

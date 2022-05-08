@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"fmt"
@@ -29,7 +29,11 @@ func startTcp(port string, handler http.Handler) {
 	log.Fatal(http.ListenAndServe(addr, handler))
 }
 
-func createServer() {
+/*
+	creates a TCP server using env variable `PORT`
+	as server port or defaults to port 80
+*/
+func CreateServer() {
 	handler := startRouter()
 	startTcp(os.Getenv("PORT"), handler)
 }
