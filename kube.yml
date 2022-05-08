@@ -1,0 +1,36 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sandbox-go
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      name: sandbox-go
+  template:
+    metadata:
+      labels:
+        name: sandbox-go
+    spec:
+      containers:
+        - name: application
+          image: ${secrets.DOCKER_REGISTRY}/${secrets.DOCKER_IMAGE_NAME}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: $PORT
+      imagePullSecrets:
+        - name: ${secrets.DOCKER_CONFIG}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sandbox-go-service
+spec:
+  type: LoadBalancer
+  ports:
+    - name: http
+      port: ${secrets.EXTERNAL_PORT}
+      targetPort: $PORT
+  selector:
+    name: sandbox-go
