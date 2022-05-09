@@ -39,7 +39,7 @@ jobs:
       - name: Push image
         run: docker image push ${{ steps.tag.outputs.bare }} --all-tags
       - name: Update deployment image
-        uses: eyzi/k8s-deploy@main
+        uses: eyzi/k8s-deploy@v1
         with:
           api_url:    ${{ secrets.DEPLOY_URL }}
           api_token:  ${{ secrets.DEPLOY_TOKEN }}
@@ -55,7 +55,7 @@ jobs:
     needs: staging
     steps:
       - name: Update deployment image
-        uses: eyzi/k8s-deploy@main
+        uses: eyzi/k8s-deploy@v1
         with:
           api_url: ${{ secrets.DEPLOY_URL }}
           api_token: ${{ secrets.DEPLOY_TOKEN }}
