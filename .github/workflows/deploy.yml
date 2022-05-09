@@ -1,0 +1,49 @@
+name: deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  initialize:
+    name: Initialize deployment
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v2
+        name: Checkout
+        with:
+          fetch-depth: 0
+      - name: Get version
+        id: version
+        run: |
+          echo "::set-output name=semver::$(git describe --tags | sed 's/v//')"
+      - uses: Set image
+        id: docker
+        run: |
+          echo "::set-output name=image::${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_REPOSITORY }}:${{ steps.version.outputs.semver }}"
+
+  staging:
+    name: Deploy to staging
+    runs-on: self-hosted
+    needs: initialize
+    environment: staging
+      - name: curl
+        uses: wei/curl@master
+        with:
+          args: >
+            -X PATCH -H 'Content-Type: application/json-patch+json' -H 'Authorization: Bearer ${{ secrets.DEPLOY_TOKEN }}' ${{ secrets.DEPLOY_URL }}
+            --data-raw '[{"op": "replace","path": "/spec/template/spec/containers/0/image","value": "${{ jobs.initialize.steps.docker.outputs.image }}"}]'
+
+  production:
+    name: Deploy to production
+    runs-on: self-hosted
+    needs: initialize
+    environment: production
+    steps:
+      - name: curl
+        uses: wei/curl@master
+        with:
+          args: >
+            -X PATCH -H 'Content-Type: application/json-patch+json' -H 'Authorization: Bearer ${{ secrets.DEPLOY_TOKEN }}' ${{ secrets.DEPLOY_URL }}
+            --data-raw '[{"op": "replace","path": "/spec/template/spec/containers/0/image","value": "${{ jobs.initialize.steps.docker.outputs.image }}"}]'

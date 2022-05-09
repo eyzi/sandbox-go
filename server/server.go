@@ -1,7 +1,7 @@
 package server
 
 import (
-	"fmt"
+	"encoding/json"
 	"log"
 	"net/http"
 	"os"
@@ -9,8 +9,28 @@ import (
 	"github.com/gorilla/mux"
 )
 
+type Link struct {
+	Label string `json:"label"`
+	URL   string `json:"url"`
+}
+
+type Object struct {
+	Name  string `json:"name"`
+	Age   int    `json:"age"`
+	Links []Link `json:"links"`
+}
+
 func homepage(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "hello world")
+	json.NewEncoder(w).Encode(Object{
+		Name: "John Smith",
+		Age:  69,
+		Links: []Link{
+			{
+				Label: "twitter",
+				URL:   "https://twitter.com/thetweetofgod",
+			},
+		},
+	})
 }
 
 func startRouter() http.Handler {
