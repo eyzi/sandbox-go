@@ -9,7 +9,9 @@ jobs:
   staging:
     name: Deploy to staging
     runs-on: self-hosted
-    environment: staging
+    environment:
+      name: staging
+      url: https://sandbox-go-staging.eyzi.dev/
     outputs:
       semver: ${{ steps.version.outputs.semver }}
     steps:
@@ -44,7 +46,9 @@ jobs:
   production:
     name: Deploy to production
     runs-on: self-hosted
-    environment: production
+    environment:
+      name: production
+      url: https://sandbox-go.eyzi.dev/
     needs: staging
     steps:
       - name: Update deployment image
