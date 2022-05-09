@@ -44,7 +44,7 @@ jobs:
           api_url:    ${{ secrets.DEPLOY_URL }}
           api_token:  ${{ secrets.DEPLOY_TOKEN }}
           image:      ${{ steps.tag.outputs.bare }}
-          image:      ${{ steps.version.outputs.semver }}
+          version:      ${{ steps.version.outputs.semver }}
 
   production:
     name: Deploy to production
