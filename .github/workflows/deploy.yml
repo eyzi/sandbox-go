@@ -39,7 +39,7 @@ jobs:
       - name: Update deployment image
         run: >
           curl --silent --show-error --fail -X PATCH ${{ secrets.DEPLOY_URL }} -H 'Content-Type: application/json-patch+json' -H 'Authorization: Bearer ${{ secrets.DEPLOY_TOKEN }}'
-          -d '[{"op":"replace","path":"/spec/template/spec/containers/0/image","value":"${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_REPOSITORY }}:${{ needs.staging.outputs.semver }}"}]'
+          -d '[{"op":"replace","path":"/spec/template/spec/containers/0/image","value":"${{ steps.tag.outputs.version }}"}]'
 
   production:
     name: Deploy to production
