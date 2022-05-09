@@ -18,7 +18,7 @@ jobs:
         id: version
         run: |
           echo "::set-output name=semver::$(git describe --tags | sed 's/v//')"
-      - uses: Set image
+      - name: Set image
         id: docker
         run: |
           echo "::set-output name=image::${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_REPOSITORY }}:${{ steps.version.outputs.semver }}"
