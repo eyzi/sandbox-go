@@ -28,6 +28,7 @@ jobs:
     runs-on: self-hosted
     needs: initialize
     environment: staging
+    steps:
       - name: curl
         uses: wei/curl@master
         with:
