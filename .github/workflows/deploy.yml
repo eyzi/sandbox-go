@@ -9,7 +9,6 @@ jobs:
   staging:
     name: Deploy to staging
     runs-on: self-hosted
-    needs: initialize
     environment: staging
     steps:
       - uses: actions/checkout@v2
@@ -47,7 +46,6 @@ jobs:
   production:
     name: Deploy to production
     runs-on: self-hosted
-    needs: initialize
     environment: production
     steps:
       - uses: actions/checkout@v2
