@@ -11,7 +11,7 @@ jobs:
     runs-on: self-hosted
     outputs:
       semver: ${{ steps.version.outputs.semver }}
-      image: ${{ steps.docker.outputs.image }}
+      image: ${{ steps.tag.outputs.version }}
     steps:
       - uses: actions/checkout@v2
         name: Checkout
@@ -22,12 +22,23 @@ jobs:
         run: |
           echo "::set-output name=semver::$(git describe --tags | sed 's/v//')"
       - name: Set image
-        id: docker
+        id: tag
         run: |
-          echo "::set-output name=image::${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_REPOSITORY }}:${{ steps.version.outputs.semver }}"
+          echo "::set-output name=bare::${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_REPOSITORY }}"
+          echo "::set-output name=version::${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_REPOSITORY }}:${{ steps.version.outputs.semver }}"
       - name: Mask image
         run: |
           echo "::add-mask::${{ steps.docker.outputs.image }}"
+      - uses: docker/login-action@v1
+        name: Login to docker registry
+        with:
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Build image
+        run: docker build -t ${{ steps.tag.outputs.version }} .
+      - name: Push image
+        run: docker image push ${{ steps.tag.outputs.bare }} --all-tags
 
   staging:
     name: Deploy to staging
@@ -43,8 +54,8 @@ jobs:
         uses: wei/curl@master
         with:
           args: >
-            -X PATCH -H 'Content-Type: application/json-patch+json' -H 'Authorization: Bearer ${{ secrets.DEPLOY_TOKEN }}' ${{ secrets.DEPLOY_URL }}
-            --data-raw '[{"op": "replace","path": "/spec/template/spec/containers/0/image","value": "$IMAGE"}]'
+            -X PATCH -H "Content-Type: application/json-patch+json" -H "Authorization: Bearer ${{ secrets.DEPLOY_TOKEN }}" ${{ secrets.DEPLOY_URL }}
+            --data-raw "[{\"op\": \"replace\",\"path\": \"/spec/template/spec/containers/0/image\",\"value\": \"$IMAGE\"}]"
 
   production:
     name: Deploy to production
@@ -57,6 +68,6 @@ jobs:
       - name: Update deployment image
         uses: wei/curl@master
         with:
-          args: >
-            -X PATCH -H 'Content-Type: application/json-patch+json' -H 'Authorization: Bearer ${{ secrets.DEPLOY_TOKEN }}' ${{ secrets.DEPLOY_URL }}
-            --data-raw '[{"op": "replace","path": "/spec/template/spec/containers/0/image","value": "$IMAGE"}]'
+          args: |
+            -X PATCH -H "Content-Type: application/json-patch+json" -H "Authorization: Bearer ${{ secrets.DEPLOY_TOKEN }}" ${{ secrets.DEPLOY_URL }}
+            --data-raw "[{\"op\": \"replace\",\"path\": \"/spec/template/spec/containers/0/image\",\"value\": \"$IMAGE\"}]"
