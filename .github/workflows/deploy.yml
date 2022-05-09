@@ -39,9 +39,11 @@ jobs:
       - name: Push image
         run: docker image push ${{ steps.tag.outputs.bare }} --all-tags
       - name: Update deployment image
-        run: >
-          curl --silent --show-error --fail -X PATCH ${{ secrets.DEPLOY_URL }} -H 'Content-Type: application/json-patch+json' -H 'Authorization: Bearer ${{ secrets.DEPLOY_TOKEN }}'
-          -d '[{"op":"replace","path":"/spec/template/spec/containers/0/image","value":"${{ steps.tag.outputs.version }}"}]'
+        uses: eyzi/k8s-deploy@main
+        with:
+          api_url: ${{ secrets.DEPLOY_URL }}
+          api_token: ${{ secrets.DEPLOY_TOKEN }}
+          image: ${{ steps.tag.outputs.bare }}
 
   production:
     name: Deploy to production
@@ -52,6 +54,9 @@ jobs:
     needs: staging
     steps:
       - name: Update deployment image
-        run: >
-          curl --silent --show-error --fail -X PATCH ${{ secrets.DEPLOY_URL }} -H 'Content-Type: application/json-patch+json' -H 'Authorization: Bearer ${{ secrets.DEPLOY_TOKEN }}'
-          -d '[{"op":"replace","path":"/spec/template/spec/containers/0/image","value":"${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_REPOSITORY }}:${{ needs.staging.outputs.semver }}"}]'
+        uses: eyzi/k8s-deploy@main
+        with:
+          api_url: ${{ secrets.DEPLOY_URL }}
+          api_token: ${{ secrets.DEPLOY_TOKEN }}
+          image: ${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_REPOSITORY }}
+          version: ${{ needs.staging.outputs.semver }}
