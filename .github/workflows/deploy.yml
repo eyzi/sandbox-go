@@ -40,8 +40,8 @@ jobs:
         uses: wei/curl@master
         with:
           args: >
-            -X PATCH '${{ secrets.DEPLOY_URL }}' -H 'Content-Type: application/json-patch+json' -H 'Authorization: Bearer ${{ secrets.DEPLOY_TOKEN }}'
-            --data-raw '[{"op": "replace","path": "/spec/template/spec/containers/0/image","value": "${{ steps.tag.outputs.version }}"}]'
+            -X PATCH ${{ secrets.DEPLOY_URL }} -H 'Content-Type: application/json-patch+json' -H 'Authorization: Bearer ${{ secrets.DEPLOY_TOKEN }}'
+            -d '[{"op": "replace","path": "/spec/template/spec/containers/0/image","value": "${{ steps.tag.outputs.version }}"}]'
 
   production:
     name: Deploy to production
@@ -53,5 +53,5 @@ jobs:
         uses: wei/curl@master
         with:
           args: >
-            -X PATCH '${{ secrets.DEPLOY_URL }}' -H 'Content-Type: application/json-patch+json' -H 'Authorization: Bearer ${{ secrets.DEPLOY_TOKEN }}'
-            --data-raw '[{"op": "replace","path": "/spec/template/spec/containers/0/image","value": "${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_REPOSITORY }}:${{ needs.staging.outputs.semver }}"}]'
+            -X PATCH ${{ secrets.DEPLOY_URL }} -H 'Content-Type: application/json-patch+json' -H 'Authorization: Bearer ${{ secrets.DEPLOY_TOKEN }}'
+            -d '[{"op": "replace","path": "/spec/template/spec/containers/0/image","value": "${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_REPOSITORY }}:${{ needs.staging.outputs.semver }}"}]'
