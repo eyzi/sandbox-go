@@ -54,8 +54,8 @@ jobs:
         uses: wei/curl@master
         with:
           args: >
-            -X PATCH -H "Content-Type: application/json-patch+json" -H "Authorization: Bearer ${{ secrets.DEPLOY_TOKEN }}" ${{ secrets.DEPLOY_URL }}
-            --data-raw "[{\"op\": \"replace\",\"path\": \"/spec/template/spec/containers/0/image\",\"value\": \"$IMAGE\"}]"
+            -X PATCH ${{ secrets.DEPLOY_URL }} -H 'Content-Type: application/json-patch+json' -H 'Authorization: Bearer ${{ secrets.DEPLOY_TOKEN }}'
+            --data-raw '[{"op": "replace","path": "/spec/template/spec/containers/0/image","value": "'"$IMAGE"'"}]'
 
   production:
     name: Deploy to production
@@ -69,5 +69,5 @@ jobs:
         uses: wei/curl@master
         with:
           args: |
-            -X PATCH -H "Content-Type: application/json-patch+json" -H "Authorization: Bearer ${{ secrets.DEPLOY_TOKEN }}" ${{ secrets.DEPLOY_URL }}
-            --data-raw "[{\"op\": \"replace\",\"path\": \"/spec/template/spec/containers/0/image\",\"value\": \"$IMAGE\"}]"
+            -X PATCH ${{ secrets.DEPLOY_URL }} -H 'Content-Type: application/json-patch+json' -H 'Authorization: Bearer ${{ secrets.DEPLOY_TOKEN }}'
+            --data-raw '[{"op": "replace","path": "/spec/template/spec/containers/0/image","value": "'"$IMAGE"'"}]'
