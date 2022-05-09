@@ -34,6 +34,8 @@ jobs:
     runs-on: self-hosted
     needs: initialize
     environment: staging
+    env:
+      IMAGE: ${{ needs.initialize.outputs.image }}
     steps:
       - name: Log version
         run: echo ${{ needs.initialize.outputs.semver }}
@@ -42,17 +44,19 @@ jobs:
         with:
           args: >
             -X PATCH -H 'Content-Type: application/json-patch+json' -H 'Authorization: Bearer ${{ secrets.DEPLOY_TOKEN }}' ${{ secrets.DEPLOY_URL }}
-            --data-raw '[{"op": "replace","path": "/spec/template/spec/containers/0/image","value": "${{ needs.initialize.outputs.image }}"}]'
+            --data-raw '[{"op": "replace","path": "/spec/template/spec/containers/0/image","value": "$IMAGE"}]'
 
   production:
     name: Deploy to production
     runs-on: self-hosted
     needs: initialize
     environment: production
+    env:
+      IMAGE: ${{ needs.initialize.outputs.image }}
     steps:
       - name: Update deployment image
         uses: wei/curl@master
         with:
           args: >
             -X PATCH -H 'Content-Type: application/json-patch+json' -H 'Authorization: Bearer ${{ secrets.DEPLOY_TOKEN }}' ${{ secrets.DEPLOY_URL }}
-            --data-raw '[{"op": "replace","path": "/spec/template/spec/containers/0/image","value": "${{ needs.initialize.outputs.image }}"}]'
+            --data-raw '[{"op": "replace","path": "/spec/template/spec/containers/0/image","value": "$IMAGE"}]'
