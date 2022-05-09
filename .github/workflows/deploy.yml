@@ -9,6 +9,8 @@ jobs:
   initialize:
     name: Initialize deployment
     runs-on: self-hosted
+    outputs:
+      image: ${{ steps.docker.outputs.image }}
     steps:
       - uses: actions/checkout@v2
         name: Checkout
@@ -34,7 +36,7 @@ jobs:
         with:
           args: >
             -X PATCH -H 'Content-Type: application/json-patch+json' -H 'Authorization: Bearer ${{ secrets.DEPLOY_TOKEN }}' ${{ secrets.DEPLOY_URL }}
-            --data-raw '[{"op": "replace","path": "/spec/template/spec/containers/0/image","value": "${{ jobs.initialize.steps.docker.outputs.image }}"}]'
+            --data-raw '[{"op": "replace","path": "/spec/template/spec/containers/0/image","value": "${{ needs.initialize.outputs.image }}"}]'
 
   production:
     name: Deploy to production
@@ -47,4 +49,4 @@ jobs:
         with:
           args: >
             -X PATCH -H 'Content-Type: application/json-patch+json' -H 'Authorization: Bearer ${{ secrets.DEPLOY_TOKEN }}' ${{ secrets.DEPLOY_URL }}
-            --data-raw '[{"op": "replace","path": "/spec/template/spec/containers/0/image","value": "${{ jobs.initialize.steps.docker.outputs.image }}"}]'
+            --data-raw '[{"op": "replace","path": "/spec/template/spec/containers/0/image","value": "${{ needs.initialize.outputs.image }}"}]'
